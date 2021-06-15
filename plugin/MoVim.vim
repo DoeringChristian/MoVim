@@ -46,6 +46,9 @@ function! MoVimTargets(string, prefix, dir)
     endwhile
 
     call setpos('.', orig)
+    if(targets[0][1] == orig[1] && targets[0][2] == orig[2])
+        return []
+    endif
     return targets
 endfunction
 
@@ -93,7 +96,6 @@ function! MoVimSearch(prefix, dir)
     endwhile
 
     if(empty(targets))
-        call feedkeys(c, 'n')
         return
     endif
 
