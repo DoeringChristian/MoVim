@@ -26,14 +26,13 @@ function! MoVimTargets(string, prefix, dir)
     let pos_first = []
 
     while 1
-        
         let dir_char = a:dir ? '>' : '<'
         let bound_vert = '\%' . dir_char . string(orig[1]) . 'l\%<' . string(line("w$")+1) . 'l\%>' . string(line("w0")-1) . 'l'
         let bound_curln = '\%' . string(orig[1]) . 'l\%' . dir_char . string(orig_virtcol) . 'v'
         let search = a:string
         let bounded = bound_vert . a:prefix . search . '\|' . bound_curln . a:prefix . search
 
-        call search('\m' . bounded)
+        call search('\m' . bounded, a:dir ? '' : 'b')
         let pos = getpos('.')
         if(!empty(pos_first) && pos == pos_first)
             break
@@ -57,16 +56,37 @@ function! MoVimReplace(targets)
 endfunction
 
 function! MoVimSearch(prefix, dir)
+    redraw
+    echo '>'
+
+    "save undofile
+    try
+        let undofile = undofile(expand('%'))
+        let delundofile = !empty(&buftype)
+        execute 'wundo!' fnameescape(undofile)
+    catch
+        try
+            let undofile = tempname()
+            let delundofile = 1
+            execute 'wundo!' fnameescape(undofile)
+        catch
+            let manual = 1
+            unlet undofile
+        endtry
+    endtry
+
+    "search for targets
     let max = 2
     let i = 0
     let search = ""
     let highlights = []
     let targets = []
     let orig = getpos('.')
+    redraw
     while(1)
         let i += 1
-        let input = nr2char(getchar())
-        let search .= input
+        echo(">" . search)
+        let search .= nr2char(getchar())
         let targets_max = pow(10, strlen(search))
         let targets = MoVimTargets(search, a:prefix, a:dir)
         let j = 1
@@ -74,7 +94,7 @@ function! MoVimSearch(prefix, dir)
             call add(highlights, matchaddpos("MoVimTargets", [[target[1], target[2], i]]))
 
             let number = string(j)
-            execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . number
+            silent execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . number
 
             if(j >= targets_max-1)
                 break
@@ -89,11 +109,13 @@ function! MoVimSearch(prefix, dir)
             call matchdelete(highlight)
         endfor
         for target in targets
-            execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
+            silent execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
         endfor
         call setpos('.', orig)
         let highlights = []
     endwhile
+
+    echo(">" . search)
 
     if(empty(targets))
         return
@@ -101,6 +123,7 @@ function! MoVimSearch(prefix, dir)
 
 
     let num_str = ""
+    let num = 0
     let j = 0
     let c = ''
     let highlights_final = []
@@ -112,15 +135,24 @@ function! MoVimSearch(prefix, dir)
         call matchdelete(highlight)
     endfor
     let highlights_final = []
-    
+
+    "goto commands
+
     while(j < i)
-        let j += 1
+        echo(search . ">" . num_str)
         let c = nr2char(getchar())
-        if(!(c >= '0' && c <= '9'))
-            break
-        endif
         let num_str .= c
-        let num = str2nr(num_str)-1
+        if(c == ';')
+            let num += 1
+            let num_str = ""
+        elseif(!(c >= '0' && c <= '9'))
+            let num = 0
+            let j += 1
+            break
+        else
+            let num = str2nr(num_str)-1
+            let j += 1
+        endif
         if(num >= len(targets))
             break
         endif
@@ -138,18 +170,38 @@ function! MoVimSearch(prefix, dir)
     for highlight in highlights
         call matchdelete(highlight)
     endfor
-    for target in targets
-        execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
-    endfor
+    "reset
+
     let highlights = []
+
+    silent undo
+   
+    if(exists("undofile"))
+        try
+            silent execute 'rundo' fnameescape(undofile)
+        catch
+        endtry
+        if(delundofile)
+            call delete(undofile)
+        endif
+    else
+        "for target in targets
+        "    execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
+        "endfor
+    endif
+
     call setpos('.', orig)
     call feedkeys(c, 'n')
     "call execute("normal! " . c)
     "call matchdelete(highlight)
+    redraw
 endfunction
+
 
 if !hasmapto("MoVimSearch()")
     nnoremap <unique> <leader>w :call MoVimSearch('\<', 1)<CR>
     nnoremap <unique> <leader>b :call MoVimSearch('\<', 0)<CR>
     nnoremap <unique> <leader>e :call MoVimSearch('\>', 1)<CR>
+    nnoremap <unique> <leader>s :call MoVimSearch('', 1)<CR>
+    nnoremap <unique> <leader>S :call MoVimSearch('', 0)<CR>
 endif
