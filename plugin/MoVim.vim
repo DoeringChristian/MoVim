@@ -93,20 +93,36 @@ function! MoVimSearch(prefix, dir)
         let highlights = []
     endwhile
 
+    if(empty(targets))
+        call feedkeys(c, 'n')
+        return
+    endif
+
+
     let num_str = ""
     let j = 0
     let c = ''
     let highlights_final = []
     let orig = targets[0]
     call setpos('.', orig)
+    call add(highlights_final, matchaddpos("MoVimJump", [[targets[0][1], targets[0][2], j]]))
+    redraw
+    for highlight in highlights_final
+        call matchdelete(highlight)
+    endfor
+    let highlights_final = []
+    
     while(j < i)
         let j += 1
         let c = nr2char(getchar())
-        if(!(c >= 0 && c <= 9))
+        if(!(c >= '0' && c <= '9'))
             break
         endif
         let num_str .= c
         let num = str2nr(num_str)-1
+        if(num >= len(targets))
+            break
+        endif
         let orig = targets[num]
         call setpos('.', orig)
         "let highlight = highlights[num]
@@ -124,9 +140,8 @@ function! MoVimSearch(prefix, dir)
     for target in targets
         execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
     endfor
-    call setpos('.', orig)
     let highlights = []
-
+    call setpos('.', orig)
     call feedkeys(c, 'n')
     "call execute("normal! " . c)
     "call matchdelete(highlight)
