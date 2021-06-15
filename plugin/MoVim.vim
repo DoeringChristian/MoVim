@@ -15,9 +15,8 @@
 " along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 if(!hlexists('MoVimTargets'))
-    call execute("hi! MoVimTargets ctermfg=Red guifg=Red guibg=" . ReturnHighlightTerm("Visual", "guibg") . " ctermbg=" . ReturnHighlightTerm("Visual", "ctermbg") . " gui=bold cterm=bold" )
-    "call execute("hi! MoVimJump ctermfg=White guifg=White guibg=" . ReturnHighlightTerm("Error", "guibg") . " ctermbg=" . ReturnHighlightTerm("Error", "ctermbg") . " gui=bold cterm=bold" )
-    call execute("hi! MoVimJump ctermfg=White guifg=White guibg=" . ReturnHighlightTerm("Error", "guibg") . " ctermbg=" . ReturnHighlightTerm("Error", "ctermbg") . " gui=bold cterm=bold" )
+    call execute("hi! MoVimTargets ctermfg=Red guifg=Red guibg=" . ReturnHighlightTerm("Visual", "guibg") . " ctermbg=" . ReturnHighlightTerm("Visual", "ctermbg") . "" )
+    call execute("hi! MoVimJump ctermfg=White guifg=White guibg=" . ReturnHighlightTerm("Error", "guibg") . " ctermbg=" . ReturnHighlightTerm("Error", "ctermbg") . "" )
 endif 
 
 function! MoVimTargets(string, prefix, dir)
