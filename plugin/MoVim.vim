@@ -196,7 +196,9 @@ function! MoVimSearch(prefix, dir)
     endif
 
     call setpos('.', orig)
-    call feedkeys(c, 'n')
+    if(i != j)
+        call feedkeys(c, 'n')
+    endif
     "call execute("normal! " . c)
     "call matchdelete(highlight)
     redraw
