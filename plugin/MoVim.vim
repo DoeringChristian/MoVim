@@ -86,7 +86,8 @@ function! MoVimSearch(prefix, dir)
     while(1)
         let i += 1
         echo(">" . search)
-        let search .= nr2char(getchar())
+        let c = nr2char(getchar())
+        let search .= c
         let targets_max = pow(10, strlen(search))
         let targets = MoVimTargets(search, a:prefix, a:dir)
         let j = 1
@@ -102,7 +103,7 @@ function! MoVimSearch(prefix, dir)
             let j += 1
         endfor
         redraw
-        if(i >= max)
+        if(i >= max || c == "\e")
             break
         endif
         for highlight in highlights
