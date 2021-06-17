@@ -108,9 +108,11 @@ function! MoVimSearch(prefix, dir)
         for highlight in highlights
             call matchdelete(highlight)
         endfor
-        for target in targets
-            silent execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
-        endfor
+        "undo to get to original state
+        silent undo
+        "for target in targets
+        "    silent execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
+        "endfor
         call setpos('.', orig)
         let highlights = []
     endwhile
@@ -174,7 +176,10 @@ function! MoVimSearch(prefix, dir)
 
     let highlights = []
 
+    "undo to get to original state
+
     silent undo
+    redraw
    
     if(exists("undofile"))
         try
