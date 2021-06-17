@@ -55,7 +55,7 @@ function! MoVimReplace(targets)
 
 endfunction
 
-function! MoVimSearch(prefix, dir)
+function! MoVimSearch(prefix, dir, count)
     redraw
     echo '>'
 
@@ -77,6 +77,9 @@ function! MoVimSearch(prefix, dir)
 
     "search for targets
     let max = 2
+    if(a:count != 0)
+        let max = a:count
+    endif
     let i = 0
     let search = ""
     let highlights = []
@@ -207,9 +210,9 @@ endfunction
 
 
 if !hasmapto("MoVimSearch()")
-    nnoremap <unique> <leader>w :call MoVimSearch('\<', 1)<CR>
-    nnoremap <unique> <leader>b :call MoVimSearch('\<', 0)<CR>
-    nnoremap <unique> <leader>e :call MoVimSearch('\>', 1)<CR>
-    nnoremap <unique> <leader>s :call MoVimSearch('', 1)<CR>
-    nnoremap <unique> <leader>S :call MoVimSearch('', 0)<CR>
+    nnoremap <unique> <leader>w :<C-U>call MoVimSearch('\<', 1, v:count)<CR>
+    nnoremap <unique> <leader>b :<C-U>call MoVimSearch('\<', 0, v:count)<CR>
+    nnoremap <unique> <leader>e :<C-U>call MoVimSearch('\>', 1, v:count)<CR>
+    nnoremap <unique> <leader>s :<C-U>call MoVimSearch('', 1, v:count)<CR>
+    nnoremap <unique> <leader>S :<C-U>call MoVimSearch('', 0, v:count)<CR>
 endif
