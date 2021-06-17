@@ -149,7 +149,7 @@ function! MoVimSearch(prefix, dir)
             let num_str = ""
         elseif(!(c >= '0' && c <= '9'))
             let num = 0
-            let j += 1
+            "let j += 1
             break
         else
             let num = str2nr(num_str)-1
