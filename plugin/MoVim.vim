@@ -113,7 +113,9 @@ function! MoVimSearch(prefix, dir, count)
             call matchdelete(highlight)
         endfor
         "undo to get to original state
-        silent undo
+        if(!empty(targets))
+            silent undo
+        endif
         "for target in targets
         "    silent execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . search
         "endfor
