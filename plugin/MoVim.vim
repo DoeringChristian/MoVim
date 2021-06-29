@@ -98,7 +98,8 @@ function! MoVimSearch(prefix, dir, count)
             call add(highlights, matchaddpos("MoVimTargets", [[target[1], target[2], i]]))
 
             let number = string(j)
-            silent execute "normal! :" . target[1]. "\<CR>" . target[2] . "|gR" . number
+            let vcol = strcharlen(getline(target[1])[0:target[2]])-1
+            silent execute "normal! :" . target[1]. "\<CR>" . vcol . "|gR" . number
 
             if(j >= targets_max-1)
                 break
@@ -153,6 +154,9 @@ function! MoVimSearch(prefix, dir, count)
         if(c == ';')
             let num += 1
             let num_str = ""
+            if(num >= len(targets))
+                let num = 0
+            endif
             let j = 0
         elseif(!(c >= '0' && c <= '9'))
             let num = 0
