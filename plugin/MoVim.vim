@@ -29,10 +29,10 @@ function! MoVimTargets(string, prefix, dir)
         let dir_char = a:dir ? '>' : '<'
         let bound_vert = '\%' . dir_char . string(orig[1]) . 'l\%<' . string(line("w$")+1) . 'l\%>' . string(line("w0")-1) . 'l'
         let bound_curln = '\%' . string(orig[1]) . 'l\%' . dir_char . string(orig_virtcol) . 'v'
-        let search = a:string
+        let search = escape(a:string, '/\')
         let bounded = bound_vert . a:prefix . search . '\|' . bound_curln . a:prefix . search
 
-        call search('\m' . bounded, a:dir ? '' : 'b')
+        call search('\V' . bounded, a:dir ? '' : 'b')
         let pos = getpos('.')
         if(!empty(pos_first) && pos == pos_first)
             break
